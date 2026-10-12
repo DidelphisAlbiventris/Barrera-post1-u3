@@ -65,5 +65,61 @@ Iteración	Instrucción	AX después	CX después	IP siguiente	¿LOOP salta?
 4	ADD AX,+02	0008	0001	0109	no
 4	LOOPW 0106	0008	0000	010B	no (CX = 0)
 
+Checkpint:
+Para este bucle contador simple, donde CX solo sirve para contar las iteraciones, recomiendo LOOP. En bytes, LOOP 0106 ocupa 2 (E2 FB) frente a los 3 de DEC CX + 
+JNZ 0206 (49 75 FA), así que el programa completo ocupa 13 bytes con LOOP y 14 con DEC/JNZ. En instrucciones, LOOP hace el control del bucle con una sola 
+instrucción por iteración, mientras que DEC/JNZ obliga al procesador a extraer y ejecutar dos. Menos código y menos instrucciones por vuelta hacen que LOOP sea la 
+opción más compacta y directa cuando la condición de salida es simplemente CX ≠ 0.
 
+Preferiría DEC/JNZ cuando el control del bucle necesite algo que LOOP no ofrece. LOOP solo trabaja con CX y no modifica las banderas, mientras que DEC sí 
+actualiza ZF, SF y otras, y puede aplicarse a cualquier registro. Por eso lo usaría si el cuerpo del bucle necesitara CX para otra operación aritmética y el 
+contador tuviera que ir en otro registro, o si la condición de salida no fuera “CX ≠ 0” sino el resultado de una comparación con CMP. También conviene tener 
+presente que en procesadores modernos LOOP suele ser más lento que DEC/JNZ, así que el ahorro de bytes no siempre implica ahorro de tiempo.
 
+Para comparar el tamaño sin ejecutar nada, usaría U sobre ambos programas. En U 100 10B la última instrucción (INT 20) empieza en 010B y el programa termina en 
+010C, es decir, ocupa 13 bytes. En U 200 20D termina en 020D, es decir, 14 bytes. La diferencia de un byte se ve directamente en las direcciones y en la columna 
+de código máquina.
+
+Checkpoint:
+Con CX = 0x0064, G 20C es más práctico que T porque ejecuta las 100 iteraciones a velocidad completa y se detiene en 020C, mientras que T exigiría unas 300 
+pulsaciones con sus volcados de registros. Lo que se pierde es el detalle intermedio: no se ven los valores de AX, CX y las banderas en cada instrucción, solo el 
+estado final. Por eso T fue realmente necesario en el Paso 11, donde había que completar una tabla de traza instrucción por instrucción, una granularidad que solo 
+T ofrece. Después de G 20C, usaría el comando R, que muestra los registros sin modificarlos y permite confirmar AX = 0008 sin haber observado ningún paso 
+intermedio.
+
+Checkpoint 3:
+Iteración	Instrucción	AX después	CX después	IP siguiente	¿JNZ salta?
+-	MOV AX,0000	0000	0002*	0203	no
+-	MOV CX,0004	0000	0004	0206	no
+1	ADD AX,+02	0002	0004	0209	no
+1	DEC CX	0002	0003	020A	no
+1	JNZ 0206	0002	0003	0206	Sí (ZF = 0)
+2	ADD AX,+02	0004	0003	0209	no
+2	DEC CX	0004	0002	020A	no
+2	JNZ 0206	0004	0002	0206	Sí (ZF = 0)
+3	ADD AX,+02	0006	0002	0209	no
+3	DEC CX	0006	0001	020A	no
+3	JNZ 0206	0006	0001	0206	Sí (ZF = 0)
+4	ADD AX,+02	0008	0001	0209	no
+4	DEC CX	0008	0000	020A	no
+4	JNZ 0206	0008	0000	020C	no (ZF = 1, ZR)
+-	INT 20	0008	0000	-	Fin del programa
+
+Versión	Preparación	Cuerpo (4 iteraciones)	INT 20	Total
+LOOP	2	2 × 4 = 8	1	11
+DEC/JNZ	2	3 × 4 = 12	1	15
+
+Decisión técnica del Paso 10:
+Para este bucle contador simple recomiendo LOOP. En código máquina, LOOP 0106 ocupa 2 bytes (E2 FB), mientras que DEC CX + JNZ 0206 ocupan 3 (49 75 FA), de modo 
+que el programa completo pasa de 13 a 14 bytes. En ejecución, LOOP necesita una instrucción por iteración para controlar el bucle y DEC/JNZ necesita dos, lo que 
+se refleja en el conteo total: 11 instrucciones ejecutadas con LOOP frente a 15 con DEC/JNZ. Preferiría DEC/JNZ si el contador no pudiera ser CX, si el cuerpo del 
+bucle necesitara CX para otra operación aritmética o si la condición de salida dependiera de una comparación con CMP, porque DEC actualiza las banderas y funciona 
+con cualquier registro, mientras que LOOP solo usa CX y no modifica banderas. Con U se compara sin ejecutar nada: el programa con LOOP va de 0100 a 010C y el de 
+DEC/JNZ de 0200 a 020D, es decir, 13 y 14 bytes respectivamente.
+
+Decisión técnica del Paso 12:
+Con CX = 0x0064, G 20C es más práctico que T porque ejecuta las 100 iteraciones a velocidad completa y se detiene en la dirección 020C, mientras que T obligaría a 
+unas 300 pulsaciones, cada una con su volcado de registros que nadie leería. Lo que se pierde al usar G es el detalle intermedio: no se observan AX, CX, IP ni las 
+banderas en cada instrucción, solo el estado final al llegar al punto de parada. Por eso T fue realmente necesario en el Paso 11, donde había que completar una 
+tabla de traza instrucción por instrucción, una granularidad que solo T ofrece. Después de G 20C, el estudiante usaría el comando R sin argumentos, que solo 
+muestra los registros sin modificarlos, para confirmar que AX = 0008 sin haber observado ningún paso intermedio.
