@@ -3,17 +3,17 @@
 Parte 1:
 Checkpoint 2:
 La salida del comando D tiene tres columnas. La primera es la dirección de memoria en formato segmento:desplazamiento (por ejemplo 0724:0200), donde 0724 es el 
-segmento y 0200 es el desplazamiento del primer byte de esa línea; en cada línea siguiente el desplazamiento aumenta en 10h porque se muestran 16 bytes por fila. La 
-segunda columna contiene esos 16 bytes en hexadecimal, separados por espacios, con un guion entre el octavo y el noveno byte para facilitar la lectura; aquí se ve el 
-patrón AB CD EF repetido, que es lo que se escribió con el comando F. La tercera columna es la representación en ASCII de cada byte, donde los caracteres imprimibles 
-se muestran como letras o símbolos y los que no lo son se reemplazan por un punto. En este caso toda la columna aparece como puntos (................) porque los 
-valores AB, CD y EF no corresponden a caracteres ASCII imprimibles.
+segmento y 0200 es el desplazamiento del primer byte de esa línea; en cada línea siguiente el desplazamiento aumenta en 10h porque se muestran 16 bytes por fila. 
+La segunda columna contiene esos 16 bytes en hexadecimal, separados por espacios, con un guion entre el octavo y el noveno byte para facilitar la lectura; aquí se 
+ve el patrón AB CD EF repetido, que es lo que se escribió con el comando F. La tercera columna es la representación en ASCII de cada byte, donde los caracteres 
+imprimibles se muestran como letras o símbolos y los que no lo son se reemplazan por un punto. En este caso toda la columna aparece como puntos (................) 
+porque los valores AB, CD y EF no corresponden a caracteres ASCII imprimibles.
 
 Checkpoint Decisión técnica:
 Para confirmar que el Paso 11 dejó 78 56 en 0724:0300 y 0724:0301, necesito leer la memoria sin cambiar nada, y entre R, E, F y D el único que cumple esto es D.
 
-Invocar E 300 sin lista de bytes no es seguro porque DEBUG entra en modo interactivo: muestra el valor actual del byte y espera una entrada. Si por error escribo un 
-valor o pulso una tecla equivocada, sobrescribo ese byte, así que la verificación se convierte en una nueva modificación. En cambio, E 300 78 56 con la lista 
+Invocar E 300 sin lista de bytes no es seguro porque DEBUG entra en modo interactivo: muestra el valor actual del byte y espera una entrada. Si por error escribo 
+un valor o pulso una tecla equivocada, sobrescribo ese byte, así que la verificación se convierte en una nueva modificación. En cambio, E 300 78 56 con la lista 
 completa se ejecuta de una vez, escribe exactamente esos dos bytes y termina sin pedir nada más. Esa es la escritura que quiero comprobar, no una forma de
 comprobarla.
 
@@ -54,8 +54,8 @@ ADD AX,CX	0012	0005	0003	010D	0 (NZ)	0 (NC)	0 (PL)
 Checkpoint 2:
 Tabla de trazado completa:
 Iteración	Instrucción	AX después	CX después	IP siguiente	¿LOOP salta?
--	MOV AX,0000	0000	0000	0103	no
--	MOV CX,0004	0000	0004	0106	no
+0	MOV AX,0000	0000	0000	0103	no
+0	MOV CX,0004	0000	0004	0106	no
 1	ADD AX,+02	0002	0004	0109	no
 1	LOOPW 0106	0002	0003	0106	Sí (CX ≠ 0)
 2	ADD AX,+02	0004	0003	0109	no
@@ -89,8 +89,8 @@ intermedio.
 
 Checkpoint 3:
 Iteración	Instrucción	AX después	CX después	IP siguiente	¿JNZ salta?
--	MOV AX,0000	0000	0002*	0203	no
--	MOV CX,0004	0000	0004	0206	no
+0	MOV AX,0000	0000	0002*	0203	no
+0	MOV CX,0004	0000	0004	0206	no
 1	ADD AX,+02	0002	0004	0209	no
 1	DEC CX	0002	0003	020A	no
 1	JNZ 0206	0002	0003	0206	Sí (ZF = 0)
@@ -103,7 +103,7 @@ Iteración	Instrucción	AX después	CX después	IP siguiente	¿JNZ salta?
 4	ADD AX,+02	0008	0001	0209	no
 4	DEC CX	0008	0000	020A	no
 4	JNZ 0206	0008	0000	020C	no (ZF = 1, ZR)
--	INT 20	0008	0000	-	Fin del programa
+0	INT 20	0008	0000	-	Fin del programa
 
 Versión	Preparación	Cuerpo (4 iteraciones)	INT 20	Total
 LOOP	2	2 × 4 = 8	1	11
