@@ -41,3 +41,29 @@ para el modo directo, mientras que el programa del Paso 10 mostraba B80500 para 
 B8) y por lo que contienen sus operandos.
 
 Parte 2:
+
+Checkpoint 1:
+Tabla de trazas completa:
+Instrucción	AX	BX	CX	IP siguiente	ZF	CF	SF
+MOV AX,000A	000A	0000	0000	0103	0 (NZ)	0 (NC)	0 (PL)
+MOV BX,0005	000A	0005	0000	0106	0 (NZ)	0 (NC)	0 (PL)
+MOV CX,0003	000A	0005	0003	0109	0 (NZ)	0 (NC)	0 (PL)
+ADD AX,BX	000F	0005	0003	010B	0 (NZ)	0 (NC)	0 (PL)
+ADD AX,CX	0012	0005	0003	010D	0 (NZ)	0 (NC)	0 (PL)
+
+Checkpoint 2:
+Tabla de trazado completa:
+Iteración	Instrucción	AX después	CX después	IP siguiente	¿LOOP salta?
+-	MOV AX,0000	0000	0000	0103	no
+-	MOV CX,0004	0000	0004	0106	no
+1	ADD AX,+02	0002	0004	0109	no
+1	LOOPW 0106	0002	0003	0106	Sí (CX ≠ 0)
+2	ADD AX,+02	0004	0003	0109	no
+2	LOOPW 0106	0004	0002	0106	Sí (CX ≠ 0)
+3	ADD AX,+02	0006	0002	0109	no
+3	LOOPW 0106	0006	0001	0106	Sí (CX ≠ 0)
+4	ADD AX,+02	0008	0001	0109	no
+4	LOOPW 0106	0008	0000	010B	no (CX = 0)
+
+
+
